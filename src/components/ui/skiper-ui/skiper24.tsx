@@ -1,0 +1,333 @@
+"use client";
+
+import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useCallback, useEffect, useRef, useState } from "react";
+import useSound from "use-sound";
+
+import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
+import { X } from "lucide-react";
+
+
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ================= HELPERS ================= */
+
+const paiseToRupees = (p: number): number => Math.round(p / 100);
+
+/* ================= TYPES ================= */
+
+type MenuOptionValue = {
+  value: string;
+  priceDelta: number;
+};
+
+type MenuOption = {
+  id: string;
+  name: string;
+  values: MenuOptionValue[];
+};
+
+type Project = {
+  id: string;
+  _virtualId?: string;
+  name: string;
+  price: number; // UI
+  basePrice: number; // LOGIC (paise)
+  image: string;
+  description?: string;
+  category: {
+    name: string;
+  };
+  options?: MenuOption[];
+};
+
+interface TikTikColorListProps {
+  projects: Project[];
+  className?: string;
+  showPreview?: boolean;
+  previewSize?: "sm" | "md" | "lg";
+  enableSound?: boolean;
+  infiniteScroll?: boolean;
+  scrollThreshold?: number;
+}
+
+/* ================= COMPONENT ================= */
+
+const TikTikColorList = ({
+  projects,
+  className = "",
+  showPreview = true,
+  enableSound = true,
+  infiniteScroll = true,
+  scrollThreshold = 1000,
+}: TikTikColorListProps) => {
+  const [currentProjectIndex, setCurrentProjectIndex] = useState<number>(0);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [archiveList, setArchiveList] = useState<Project[]>([]);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const previewRef = useRef<HTMLImageElement | null>(null);
+  const isLoadingRef = useRef<boolean>(false);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const { addToCart } = useCart();
+
+  const [playTick] = useSound("/sfx/tick1.mp3", {
+    volume: 0.6,
+    soundEnabled: enableSound,
+  });
+
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<
+    Record<string, string>
+  >({});
+
+  /* ================= INFINITE SCROLL ================= */
+
+  useEffect(() => {
+    if (!infiniteScroll) {
+      setArchiveList(projects);
+      return;
+    }
+
+    const list: Project[] = [];
+
+    for (let i = 0; i < 10; i++) {
+      projects.forEach((project: Project, j: number) => {
+        list.push({
+          ...project,
+          _virtualId: `${i}-${j}-${project.id}`,
+        });
+      });
+    }
+
+    setArchiveList(list);
+  }, [projects, infiniteScroll]);
+
+  const handleScroll = useCallback(() => {
+    if (!infiniteScroll || isLoadingRef.current) return;
+
+    if (
+      window.scrollY + window.innerHeight >=
+      document.documentElement.scrollHeight - scrollThreshold
+    ) {
+      isLoadingRef.current = true;
+
+      setTimeout(() => {
+        setArchiveList((prev: Project[]) => [
+          ...prev,
+          ...projects.map((project: Project, i: number) => ({
+            ...project,
+            _virtualId: `${prev.length}-${i}-${project.id}`,
+          })),
+        ]);
+
+        isLoadingRef.current = false;
+      }, 400);
+    }
+  }, [projects, infiniteScroll, scrollThreshold]);
+
+  useEffect(() => {
+    if (!infiniteScroll) return;
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll, infiniteScroll]);
+
+  /* ================= GSAP ================= */
+
+  useEffect(() => {
+    ScrollTrigger.getAll().forEach((t) => t.kill());
+
+    itemRefs.current.forEach((item, index) => {
+      if (!item) return;
+
+      ScrollTrigger.create({
+        trigger: item,
+        start: "top 70%",
+        end: "top 65%",
+        onEnter: () => {
+          playTick();
+          setCurrentProjectIndex(index % projects.length);
+          setActiveIndex(index);
+        },
+        onEnterBack: () => {
+          playTick();
+          setCurrentProjectIndex(index % projects.length);
+          setActiveIndex(index);
+        },
+      });
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, [archiveList, projects.length, playTick]);
+
+  const currentProject =
+    projects.length > 0 ? projects[currentProjectIndex] : null;
+
+  /* ================= PRICE LOGIC ================= */
+
+  const calculatePrice = (
+    project: Project,
+    options: Record<string, string>
+  ): number => {
+    let total = project.basePrice;
+
+    project.options?.forEach((opt) => {
+      const selected = options[opt.id];
+      if (!selected) return;
+
+      const value = opt.values.find((v) => v.value === selected);
+      if (value) total += value.priceDelta;
+    });
+
+    return total;
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProject) return;
+
+    const finalPrice = calculatePrice(selectedProject, selectedOptions);
+
+    addToCart({
+      id: selectedProject.id,
+      name: selectedProject.name,
+      price: finalPrice, // paise
+      image: selectedProject.image,
+      selectedOptions,
+    });
+
+    setSelectedProject(null);
+    setSelectedOptions({});
+  };
+
+  /* ================= RENDER ================= */
+
+  return (
+    <motion.div
+      className={cn("archive w-screen", className)}
+      ref={containerRef}
+      style={{ backgroundColor: "#fff", minHeight: "100vh" }}
+    >
+      {/* PREVIEW */}
+      {showPreview && currentProject && (
+        <div className="fixed bottom-10 right-10 z-50 hidden md:block">
+          <img
+            ref={previewRef}
+            src={currentProject.image}
+            className="w-64 h-64 rounded-3xl shadow-2xl object-cover"
+            alt={currentProject.name}
+          />
+        </div>
+      )}
+
+      {/* LIST */}
+      <div className="flex flex-col gap-6">
+        {archiveList.map((project: Project, index: number) => (
+          <div
+            key={`${project._virtualId}-${index}`}
+            ref={(el) => {
+              itemRefs.current[index] = el;
+            }}
+            style={{ opacity: index === activeIndex ? 1 : 0.2 }}
+            className="px-10 cursor-pointer"
+            onClick={() => setSelectedProject(project)}
+          >
+            <h1 className="text-4xl md:text-7xl">{project.name}</h1>
+            <p className="text-sm text-gray-600">{project.description}</p>
+            <p className="text-sm">
+              ₹{paiseToRupees(project.basePrice)}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* MODAL */}
+      {selectedProject && (
+  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <Card className="max-w-md w-full relative">
+      {/* ❌ CLOSE BUTTON */}
+      <button
+        onClick={() => {
+          setSelectedProject(null);
+          setSelectedOptions({});
+        }}
+        className="absolute right-3 top-3 text-muted-foreground hover:text-black"
+        aria-label="Close"
+      >
+        <X size={20} />
+      </button>
+
+      <CardHeader>
+        <CardTitle>{selectedProject.name}</CardTitle>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {selectedProject.options?.map((opt) => (
+          <div key={opt.id}>
+            <label className="text-sm font-medium">{opt.name}</label>
+            <select
+              className="w-full border p-2 rounded-md mt-1"
+              value={selectedOptions[opt.id] || ""}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  [opt.id]: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select</option>
+              {opt.values.map((v) => (
+                <option key={v.value} value={v.value}>
+                  {v.value} (+₹{paiseToRupees(v.priceDelta)})
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+
+        <Button className="w-full" onClick={handleAddToCart}>
+          Add to Cart
+        </Button>
+      </CardContent>
+    </Card>
+  </div>
+)}
+
+    </motion.div>
+  );
+};
+
+/* ================= PAGE ================= */
+
+const Skiper24 = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    api.get("/menu").then((res) => {
+      setProjects(
+        res.data.items.map((item: Project) => ({
+          ...item,
+          price: paiseToRupees(item.basePrice),
+        }))
+      );
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="p-20">Loading…</div>;
+
+  return <TikTikColorList projects={projects} />;
+};
+
+export { Skiper24 };
