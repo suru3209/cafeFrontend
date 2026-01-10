@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 🔄 Check session on page load / refresh
   const fetchMe = async () => {
     try {
-      const res = await api.get("/auth/me");
+      const res = await api.get("/api/auth/me");
       setUser(res.data.user);
     } catch (err) {
       setUser(null);
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout
   const logout = async () => {
-    await api.post("/auth/logout");
+    await api.post("/api/auth/logout");
     setUser(null);
     window.location.href = "/Auth";
   };

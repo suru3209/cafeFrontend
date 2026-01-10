@@ -146,7 +146,7 @@ export default function LocationPage() {
         viewState.longitude
       );
 
-      await api.post("/addresses", {
+      await api.post("/api/addresses", {
         label: "Home",
         address: `${address}, ${city}, ${state}, ${country}`,
         city,

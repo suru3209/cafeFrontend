@@ -23,7 +23,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 -mt-20">
       {/* LEFT - BRAND */}
       <div className="hidden md:flex flex-col items-center justify-center bg-[#7f5f5c] text-white p-10">
         <img src="/images/logo.png" alt="logo" className="w-60 mb-6" />

@@ -314,7 +314,7 @@ const Skiper24 = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    api.get("/menu").then((res) => {
+    api.get("/api/menu").then((res) => {
       setProjects(
         res.data.items.map((item: Project) => ({
           ...item,

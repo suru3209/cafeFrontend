@@ -27,7 +27,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     try {
-      const res = await api.get("/auth/me");
+      const res = await api.get("/api/auth/me");
 
       if (res.data?.user) {
         router.push("/Checkout/location");
@@ -55,11 +55,25 @@ const Cart = () => {
             {cartItems.map((item, index) => (
               <SkiperGradiantCard key={`${item.id}-${index}`}>
                 <GradiantCardBody className="p-4 flex flex-col h-full">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
+                  <div className="relative mb-4 group">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+
+                    {/* SELECTED OPTIONS (Hover View) */}
+                    {item.selectedOptions &&
+                      Object.values(item.selectedOptions).length > 0 && (
+                        <div className="absolute bottom-2 left-2 bg-black/30 backdrop-blur-sm text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                          {Object.values(item.selectedOptions).map(
+                            (value, i) => (
+                              <p key={i}>{value}</p>
+                            )
+                          )}
+                        </div>
+                      )}
+                  </div>
 
                   <GradiantCardTitle className="text-lg">
                     {item.name}
@@ -122,9 +136,7 @@ const Cart = () => {
             <div className="text-sm">
               <p>Subtotal: ₹{paiseToRupees(subtotalPaise)}</p>
               <p>Tax: ₹{paiseToRupees(taxPaise)}</p>
-              <p className="font-bold">
-                Total: ₹{paiseToRupees(totalPaise)}
-              </p>
+              <p className="font-bold">Total: ₹{paiseToRupees(totalPaise)}</p>
             </div>
 
             <Button onClick={handleCheckout} size="lg">

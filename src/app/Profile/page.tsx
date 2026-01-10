@@ -85,7 +85,7 @@ export default function Profile() {
   useEffect(() => {
     const init = async () => {
       try {
-        const me = await api.get("/auth/me");
+        const me = await api.get("/api/auth/me");
         if (!me.data.user) return router.push("/");
 
         setUser(me.data.user);
@@ -94,10 +94,10 @@ export default function Profile() {
           email: me.data.user.email,
         });
 
-        const ord = await api.get("/orders/my");
+        const ord = await api.get("/api/orders/my");
         setOrders(ord.data.orders || []);
 
-        const addr = await api.get("/addresses");
+        const addr = await api.get("/api/addresses");
         setAddresses(addr.data.addresses || []);
       } catch {
         router.push("/");
@@ -110,7 +110,7 @@ export default function Profile() {
   /* ================= PROFILE UPDATE ================= */
 
   const handleSaveProfile = async () => {
-    const res = await api.put("/user/update-profile", formData);
+    const res = await api.put("/api/user/update-profile", formData);
     setUser(res.data.user);
     setEditMode(false);
   };
@@ -121,7 +121,7 @@ export default function Profile() {
     if (!confirm("Delete this address?")) return;
 
     try {
-      await api.delete(`/addresses/${id}`);
+      await api.delete(`/api/addresses/${id}`);
       setAddresses((p) => p.filter((a) => a.id !== id));
     } catch (err: any) {
       alert(err.response?.data?.message || "Cannot delete this address");
@@ -131,7 +131,7 @@ export default function Profile() {
   const handleUpdateAddress = async () => {
     if (!editAddress) return;
 
-    const res = await api.put(`/addresses/${editAddress.id}`, addrForm);
+    const res = await api.put(`/api/addresses/${editAddress.id}`, addrForm);
 
     setAddresses((p) =>
       p.map((a) => (a.id === editAddress.id ? res.data.address : a))

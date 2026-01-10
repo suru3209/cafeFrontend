@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aniicones",
+  title: "Admin Dashboard | Aniicones",
   description: "Aniicones Cafe",
   icons: "/images/logo.png",
 };

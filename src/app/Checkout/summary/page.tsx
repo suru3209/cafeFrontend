@@ -37,7 +37,7 @@ export default function OrderSummary() {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const res = await api.get("/addresses");
+        const res = await api.get("/api/addresses");
         setAddresses(res.data.addresses);
 
         const def = res.data.addresses.find((a: Address) => a.isDefault);
@@ -65,7 +65,7 @@ export default function OrderSummary() {
     try {
       setIsPlacingOrder(true);
 
-      await api.post("/orders", {
+      await api.post("/api/orders", {
         addressId: selectedAddressId,
         items: cartItems.map((item) => ({
           menuItemId: item.id,

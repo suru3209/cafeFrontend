@@ -27,7 +27,7 @@ export default function AuthForm() {
   const handleEmailCheck = async () => {
     try {
       setLoading(true);
-      const res = await api.post("/auth/check-email", { email });
+      const res = await api.post("/api/auth/check-email", { email });
 
       if (res.data.exists) {
         setMode("login");
@@ -45,7 +45,7 @@ export default function AuthForm() {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      await api.post("/auth/login", { email, password });
+      await api.post("/api/auth/login", { email, password });
       await login();
       window.location.href = "/Menu";
     } catch (err) {
@@ -59,7 +59,7 @@ export default function AuthForm() {
   const handleSignup = async () => {
     try {
       setLoading(true);
-      await api.post("/auth/signup", { name, email, password });
+      await api.post("/api/auth/signup", { name, email, password });
       await login();
       window.location.href = "/Menu";
     } catch (err) {
