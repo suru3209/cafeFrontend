@@ -89,7 +89,7 @@ export default function Profile() {
 
         if (!me.data?.user) {
           console.log("No user, redirecting...");
-          return router.push("/");
+          // return router.push("/");
         }
 
         setUser(me.data.user);
