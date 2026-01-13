@@ -72,6 +72,7 @@ export default function Profile() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const [editAddress, setEditAddress] = useState<Address | null>(null);
+  const [loading, setLoading] = useState(true);
   const [addrForm, setAddrForm] = useState({
     label: "",
     address: "",
@@ -86,21 +87,18 @@ export default function Profile() {
     const init = async () => {
       try {
         const me = await api.get("/api/auth/me");
-
-        if (!me.data?.user) {
-          console.log("No user, redirecting...");
-          // return router.push("/");
-        }
-
         setUser(me.data.user);
-      } catch (err) {
-        console.error("Auth check failed:", err);
-        // router.push("/");
+      } catch {
+        router.push("/");
+      } finally {
+        setLoading(false);
       }
     };
-
     init();
-  }, [router]);
+  }, []);
+
+  if (loading) return null;
+  if (!user) return null;
 
   /* ================= PROFILE UPDATE ================= */
 
