@@ -95,7 +95,7 @@ export default function Profile() {
         setUser(me.data.user);
       } catch (err) {
         console.error("Auth check failed:", err);
-        router.push("/");
+        // router.push("/");
       }
     };
 
