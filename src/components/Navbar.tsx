@@ -80,7 +80,7 @@ export default function Navbar() {
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <Link href="/Profile">
+                <Link href="/profile">
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                 </Link>
                 <Link href="/Cart">
