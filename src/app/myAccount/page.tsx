@@ -162,7 +162,7 @@ export default function MyAccount() {
   return (
     <div className="w-full -mt-2">
       {/* HERO */}
-      <div className="relative h-[280px] bg-[url('/images/profilepic.jpeg')] bg-cover bg-center">
+      <div className="relative h-[280px] bg-[url('/images/profilePic.jpeg')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/10" />
       </div>
 
