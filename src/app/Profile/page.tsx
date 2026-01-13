@@ -87,6 +87,7 @@ export default function Profile() {
     const init = async () => {
       try {
         const me = await api.get("/api/auth/me");
+        console.log("ME RESPONSE:", me.data);
         setUser(me.data.user);
       } catch {
         router.push("/");
