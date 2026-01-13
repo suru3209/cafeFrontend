@@ -1,8 +1,10 @@
+import { myFont,  myFont8 } from "../font";
+
 export default function AboutPage() {
   return (
-    <section className="px-6 md:px-20 py-20 bg-[#f9f9f9]">
-      <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-4xl font-bold mb-6 text-[#4b2e2b]">
+    <section className="px-6 md:px-20 py-20 -mt-2 bg-[#f9f9f9] h-screen">
+      <div className={`max-w-5xl mx-auto text-center ${myFont8.className}`}>
+        <h1 className={`text-4xl font-bold mb-6 text-[#4b2e2b] ${myFont.className}`}>
           About Aniicone’s Café ☕
         </h1>
 

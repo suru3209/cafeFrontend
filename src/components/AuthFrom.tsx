@@ -110,7 +110,7 @@ export default function AuthForm() {
         {/* BUTTON */}
         {mode === "email" && (
           <Button
-            className="w-full bg-[#4b2e2b]"
+            className="w-full bg-[#A52A2A]"
             onClick={handleEmailCheck}
             disabled={!email || loading}
           >

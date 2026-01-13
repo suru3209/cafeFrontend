@@ -1,6 +1,8 @@
+import { myFont8 } from "../font";
+
 export default function ContactPage() {
   return (
-    <section className="px-6 md:px-20 py-20 bg-white">
+    <section className={`${myFont8.className} px-6 md:px-20 py-20 bg-white`}>
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
 
         {/* LEFT */}

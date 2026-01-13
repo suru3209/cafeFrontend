@@ -30,12 +30,12 @@ const Cart = () => {
       const res = await api.get("/api/auth/me");
 
       if (res.data?.user) {
-        router.push("/checkout/location");
+        router.push("/Checkout/location");
       } else {
-        router.push("/auth?redirect=/checkout/location");
+        router.push("/Auth?redirect=/Checkout/location");
       }
     } catch {
-      router.push("/cuth?redirect=/checkout/address");
+      router.push("/Auth?redirect=/Checkout/address");
     }
   };
 

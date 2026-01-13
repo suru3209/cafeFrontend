@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
+import {  myFont4, myFont8 } from "@/app/font";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -44,7 +45,7 @@ export default function Navbar() {
             <div key={item.name} className="relative group">
               <Link
                 href={item.path}
-                className={`text-sm hover:font-bold font-medium transition ${
+                className={`text-sm hover:font-bold font-medium transition ${myFont4.className} ${
                   pathname === item.path
                     ? "text-[#4b2e2b]"
                     : "text-gray-700 hover:text-[#4b2e2b]"
@@ -97,7 +98,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/Auth"
-              className="px-5 py-2 rounded-full bg-[#4b2e2b] text-white text-sm hover:bg-[#6b4f4b] transition"
+              className={`px-5 py-2 rounded-full bg-[#ad7b7b] text-white text-bold hover:bg-[#6b4f4b] transition ${myFont8.className}`}
             >
               Join Now
             </Link>
