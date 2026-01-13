@@ -79,7 +79,7 @@ const TikTikColorList = ({
 
   const { addToCart } = useCart();
 
-  const [playTick] = useSound("/sfx/tick1.mp3", {
+  const [playTick] = useSound("/sfx/wind.mp3", {
     volume: 0.6,
     soundEnabled: enableSound,
   });
