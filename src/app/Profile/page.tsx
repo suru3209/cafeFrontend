@@ -86,20 +86,15 @@ export default function Profile() {
     const init = async () => {
       try {
         const me = await api.get("/api/auth/me");
-        if (!me.data.user) return router.push("/");
+
+        if (!me.data?.user) {
+          console.log("No user, redirecting...");
+          return router.push("/");
+        }
 
         setUser(me.data.user);
-        setFormData({
-          name: me.data.user.name,
-          email: me.data.user.email,
-        });
-
-        const ord = await api.get("/api/orders/my");
-        setOrders(ord.data.orders || []);
-
-        const addr = await api.get("/api/addresses");
-        setAddresses(addr.data.addresses || []);
-      } catch {
+      } catch (err) {
+        console.error("Auth check failed:", err);
         router.push("/");
       }
     };
@@ -202,7 +197,6 @@ export default function Profile() {
 
       {/* ORDERS + ADDRESSES */}
       <div className="mt-12 px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-16">
-
         {/* ORDERS */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Orders</h3>
@@ -234,7 +228,6 @@ export default function Profile() {
 
                 {open && (
                   <div className="border-t p-4 text-sm space-y-4">
-
                     {/* ADDRESS */}
                     <div className="bg-gray-50 p-3 rounded">
                       <p className="font-medium">Delivery Address</p>
@@ -285,7 +278,7 @@ export default function Profile() {
 
                     {/* INVOICE */}
                     <a
-                      href={`${process.env.NEXT_PUBLIC_API_URL}/invoice/${order.id}`}
+                      href={`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/${order.id}`}
                       target="_blank"
                       className="flex items-center gap-2 text-blue-600 text-sm font-medium"
                     >
