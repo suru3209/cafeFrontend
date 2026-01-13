@@ -74,7 +74,7 @@ export default function OrderSummary() {
         })),
       });
       clearCart();
-      router.push("/Payment");
+      router.push("/payment");
     } catch (err: any) {
       alert(err.response?.data?.message || "Order failed");
     }

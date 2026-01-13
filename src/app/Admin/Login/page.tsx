@@ -22,7 +22,7 @@ export default function AdminLogin() {
         return alert("Not an admin");
       }
 
-      router.push("/Admin");
+      router.push("/admin");
     } catch (err: any) {
       alert(err.response?.data?.message || "Login failed");
     }

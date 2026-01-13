@@ -33,7 +33,7 @@ export default function ProductsPage() {
   return (
     <div className="p-8 -mt-20">
       <div className="flex w-20 text-center">
-        <Button className="mr-5" onClick={() => router.push("/Admin")}>
+        <Button className="mr-5" onClick={() => router.push("/admin")}>
           <Home />
         </Button>
         <h1 className="text-2xl font-bold mb-6">Products</h1>
@@ -62,7 +62,7 @@ export default function ProductsPage() {
 
               <div className="flex justify-between mt-auto pt-4">
                 <button
-                  onClick={() => router.push(`/Admin/products/edit/${p.id}`)}
+                  onClick={() => router.push(`/admin/products/edit/${p.id}`)}
                   className="p-5"
                 >
                   <SquarePen size={18} />
