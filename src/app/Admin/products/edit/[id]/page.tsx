@@ -48,7 +48,7 @@ export default function EditProductPage() {
     });
 
     alert("Product updated successfully");
-    router.push("/admin/products");
+    router.push("/Admin/products");
   };
 
   if (loading) return <div className="p-10">Loading...</div>;
@@ -56,7 +56,7 @@ export default function EditProductPage() {
   return (
     <div className="p-8 max-w-5xl space-y-6 -mt-20">
       <div className="flex w-20 text-center">
-        <Button className="mr-5" onClick={() => router.push("/admin")}>
+        <Button className="mr-5" onClick={() => router.push("/Admin")}>
           <Home />
         </Button>
         <h1 className="text-2xl font-bold">Edit Product</h1>

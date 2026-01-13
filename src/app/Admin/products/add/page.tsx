@@ -61,7 +61,7 @@ export default function AddProductPage() {
     });
 
     alert("Product added successfully");
-    router.push("/admin/products");
+    router.push("/Admin/products");
   };
 
   return (

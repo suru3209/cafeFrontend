@@ -20,12 +20,12 @@ export default function AdminPage() {
       .get("/api/auth/me")
       .then((res) => {
         if (res.data.user?.role !== "ADMIN") {
-          router.push("/admin/Login");
+          router.push("/Admin/login");
         } else {
           fetchOrders();
         }
       })
-      .catch(() => router.push("/admin/Login"));
+      .catch(() => router.push("/Admin/login"));
   }, []);
 
   // Fetch Orders with Search & Filter
@@ -51,7 +51,7 @@ export default function AdminPage() {
   // Logout
   const logout = async () => {
     await api.post("/api/auth/logout");
-    router.push("/admin/login");
+    router.push("/Admin/login");
   };
 
   if (loading) {
@@ -67,21 +67,21 @@ export default function AdminPage() {
           <h2 className="text-xl font-bold">Admin Panel</h2>
 
           <button
-            onClick={() => router.push("/admin")}
+            onClick={() => router.push("/Admin")}
             className="block w-full text-left hover:text-gray-300"
           >
             Orders
           </button>
 
           <button
-            onClick={() => router.push("/admin/products")}
+            onClick={() => router.push("/Admin/products")}
             className="block w-full text-left hover:text-gray-300"
           >
             Products
           </button>
 
           <button
-            onClick={() => router.push("/admin/products/add")}
+            onClick={() => router.push("/Admin/products/add")}
             className="block w-full text-left hover:text-gray-300"
           >
             Add Product

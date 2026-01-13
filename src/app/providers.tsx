@@ -7,7 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideNavbar = pathname.startsWith("/admin");
+  const hideNavbar = pathname.startsWith("/Admin");
 
   return (
     <AuthProvider>

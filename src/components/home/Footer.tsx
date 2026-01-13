@@ -4,7 +4,6 @@ export default function Footer() {
   return (
     <footer className="bg-[#292F39] text-white py-16 px-6 md:px-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-
         <div>
           <h3 className="text-xl font-semibold mb-4">
             Aniicone&apos;s Café ☕
@@ -17,10 +16,18 @@ export default function Footer() {
         <div>
           <h4 className="font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2 text-sm text-white/70">
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/menu">Menu</Link></li>
-            <li><Link href="/about">About</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href="/menu">Menu</Link>
+            </li>
+            <li>
+              <Link href="/about">About</Link>
+            </li>
+            <li>
+              <Link href="/contact">Contact</Link>
+            </li>
           </ul>
         </div>
 
@@ -41,7 +48,7 @@ export default function Footer() {
         <p>
           Designed by{" "}
           <a
-            href="https://www.linkedin.com/in/your-profile"
+            href="www.linkedin.com/in/surya3209"
             target="_blank"
             className="text-white underline hover:text-gray-300"
           >
