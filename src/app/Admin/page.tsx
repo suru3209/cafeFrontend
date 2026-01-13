@@ -20,12 +20,12 @@ export default function AdminPage() {
       .get("/api/auth/me")
       .then((res) => {
         if (res.data.user?.role !== "ADMIN") {
-          router.push("/admin/login");
+          router.push("/admin/Login");
         } else {
           fetchOrders();
         }
       })
-      .catch(() => router.push("/admin/login"));
+      .catch(() => router.push("/admin/Login"));
   }, []);
 
   // Fetch Orders with Search & Filter
