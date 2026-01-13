@@ -5,7 +5,7 @@ export const myFont = localFont({
   variable: "--font-myfont",
 });
 export const myFont1 = localFont({
-  src: "./fonts/Klomisk-italic.otf",
+  src: "./fonts/Klomisk-Italic.otf",
   variable: "--font-myfont",
 });
 export const myFont2 = localFont({
