@@ -59,7 +59,7 @@ const rs = (p: number) => `₹${Math.round(p / 100).toFixed(2)}`;
 
 /* ================= PAGE ================= */
 
-export default function Profile() {
+export default function MyAccount() {
   const router = useRouter();
 
   const [user, setUser] = useState<any>(null);
@@ -68,11 +68,11 @@ export default function Profile() {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
-
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const [editAddress, setEditAddress] = useState<Address | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [addrForm, setAddrForm] = useState({
     label: "",
     address: "",
@@ -87,14 +87,20 @@ export default function Profile() {
     const init = async () => {
       try {
         const me = await api.get("/api/auth/me");
-        console.log("ME RESPONSE:", me.data);
         setUser(me.data.user);
+
+        const ordersRes = await api.get("/api/orders/my");
+        setOrders(ordersRes.data.orders || []);
+
+        const addrRes = await api.get("/api/addresses");
+        setAddresses(addrRes.data.addresses || []);
       } catch {
         router.push("/");
       } finally {
         setLoading(false);
       }
     };
+
     init();
   }, []);
 
@@ -134,7 +140,22 @@ export default function Profile() {
     setEditAddress(null);
   };
 
-  if (!user) return null;
+  /* ================= CANCEL ORDER ================= */
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!confirm("Cancel this order?")) return;
+
+    try {
+      await api.put(`/api/orders/cancel/${orderId}`);
+      setOrders((p) =>
+        p.map((o) =>
+          o.id === orderId ? { ...o, status: "CANCELLED" } : o
+        )
+      );
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Cannot cancel order");
+    }
+  };
 
   /* ================= UI ================= */
 
@@ -196,141 +217,135 @@ export default function Profile() {
 
       {/* ORDERS + ADDRESSES */}
       <div className="mt-12 px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-16">
+
         {/* ORDERS */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Orders</h3>
 
-          {orders.map((order) => {
-            const open = expandedOrder === order.id;
+          <div className="max-h-[500px] overflow-y-auto space-y-4 pr-2">
+            {orders.map((order) => {
+              const open = expandedOrder === order.id;
 
-            return (
-              <div key={order.id} className="border rounded-xl overflow-hidden">
-                <button
-                  className="w-full flex justify-between items-center p-4"
-                  onClick={() => setExpandedOrder(open ? null : order.id)}
-                >
-                  <div className="text-left">
-                    <p className="text-sm text-gray-500">
-                      {new Date(order.createdAt).toDateString()}
-                    </p>
-                    <p className="font-medium">{order.status}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{rs(order.total)}</span>
-                    <ChevronDown
-                      size={18}
-                      className={`transition ${open ? "rotate-180" : ""}`}
-                    />
-                  </div>
-                </button>
-
-                {open && (
-                  <div className="border-t p-4 text-sm space-y-4">
-                    {/* ADDRESS */}
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="font-medium">Delivery Address</p>
-                      <p className="text-gray-600">
-                        {order.address.label} <br />
-                        {order.address.address}, {order.address.city},{" "}
-                        {order.address.state} - {order.address.zipCode}
+              return (
+                <div key={order.id} className="border rounded-xl overflow-hidden">
+                  <button
+                    className="w-full flex justify-between items-center p-4"
+                    onClick={() => setExpandedOrder(open ? null : order.id)}
+                  >
+                    <div className="text-left">
+                      <p className="text-sm text-gray-500">
+                        {new Date(order.createdAt).toDateString()}
                       </p>
+                      <p className="font-medium">{order.status}</p>
                     </div>
 
-                    {/* ITEMS */}
-                    {order.items.map((item) => (
-                      <div key={item.id}>
-                        <div className="flex justify-between">
-                          <span>
-                            {item.menuItem.name} × {item.quantity}
-                          </span>
-                          <span>{rs(item.price * item.quantity)}</span>
-                        </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{rs(order.total)}</span>
+                      <ChevronDown
+                        size={18}
+                        className={`transition ${open ? "rotate-180" : ""}`}
+                      />
+                    </div>
+                  </button>
 
-                        {Object.keys(item.selectedOptions || {}).length > 0 && (
-                          <p className="text-xs text-gray-500">
-                            {Object.values(item.selectedOptions).join(", ")}
-                          </p>
+                  {open && (
+                    <div className="border-t p-4 text-sm space-y-4">
+                      <div className="bg-gray-50 p-3 rounded">
+                        <p className="font-medium">Delivery Address</p>
+                        <p className="text-gray-600">
+                          {order.address.label} <br />
+                          {order.address.address}, {order.address.city},{" "}
+                          {order.address.state} - {order.address.zipCode}
+                        </p>
+                      </div>
+
+                      {order.items.map((item) => (
+                        <div key={item.id}>
+                          <div className="flex justify-between">
+                            <span>
+                              {item.menuItem.name} × {item.quantity}
+                            </span>
+                            <span>{rs(item.price * item.quantity)}</span>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="border-t pt-2 space-y-1">
+                        <div className="flex justify-between">
+                          <span>Total</span>
+                          <span>{rs(order.total)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/${order.id}`}
+                          target="_blank"
+                          className="flex items-center gap-2 text-blue-600 text-sm font-medium"
+                        >
+                          <Download size={16} /> Invoice
+                        </a>
+
+                        {order.status === "PENDING" && (
+                          <button
+                            onClick={() => handleCancelOrder(order.id)}
+                            className="text-red-500 text-sm font-medium"
+                          >
+                            Cancel Order
+                          </button>
                         )}
                       </div>
-                    ))}
-
-                    {/* BILL */}
-                    <div className="border-t pt-2 space-y-1">
-                      <div className="flex justify-between">
-                        <span>Subtotal</span>
-                        <span>{rs(order.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax</span>
-                        <span>{rs(order.tax)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Delivery</span>
-                        <span>{rs(order.delivery)}</span>
-                      </div>
-                      <div className="flex justify-between font-semibold">
-                        <span>Total</span>
-                        <span>{rs(order.total)}</span>
-                      </div>
                     </div>
-
-                    {/* INVOICE */}
-                    <a
-                      href={`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/${order.id}`}
-                      target="_blank"
-                      className="flex items-center gap-2 text-blue-600 text-sm font-medium"
-                    >
-                      <Download size={16} /> Download Invoice
-                    </a>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* ADDRESSES */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Saved Addresses</h3>
 
-          {addresses.map((addr) => (
-            <div
-              key={addr.id}
-              className="border rounded-xl p-4 flex justify-between"
-            >
-              <div className="flex gap-3">
-                <MapPin size={18} className="mt-1" />
-                <div>
-                  <p className="font-medium">{addr.label}</p>
-                  <p className="text-sm text-gray-500">
-                    {addr.address}, {addr.city}, {addr.state} - {addr.zipCode}
-                  </p>
+          <div className="max-h-[500px] overflow-y-auto space-y-4 pr-2">
+            {addresses.map((addr) => (
+              <div
+                key={addr.id}
+                className="border rounded-xl p-4 flex justify-between"
+              >
+                <div className="flex gap-3">
+                  <MapPin size={18} className="mt-1" />
+                  <div>
+                    <p className="font-medium">{addr.label}</p>
+                    <p className="text-sm text-gray-500">
+                      {addr.address}, {addr.city}, {addr.state} - {addr.zipCode}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setEditAddress(addr);
+                      setAddrForm({
+                        label: addr.label,
+                        address: addr.address,
+                        city: addr.city,
+                        state: addr.state,
+                        zipCode: addr.zipCode,
+                      });
+                    }}
+                  >
+                    <Pencil size={16} />
+                  </button>
+
+                  <button onClick={() => handleDeleteAddress(addr.id)}>
+                    <Trash size={16} />
+                  </button>
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setEditAddress(addr);
-                    setAddrForm({
-                      label: addr.label,
-                      address: addr.address,
-                      city: addr.city,
-                      state: addr.state,
-                      zipCode: addr.zipCode,
-                    });
-                  }}
-                >
-                  <Pencil size={16} />
-                </button>
-
-                <button onClick={() => handleDeleteAddress(addr.id)}>
-                  <Trash size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
