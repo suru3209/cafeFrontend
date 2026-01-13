@@ -83,7 +83,7 @@ export default function Navbar() {
                 <Link href="/myAccount">
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                 </Link>
-                <Link href="/cart">
+                <Link href="/Cart">
                   <DropdownMenuItem>Cart</DropdownMenuItem>
                 </Link>
                 <DropdownMenuItem

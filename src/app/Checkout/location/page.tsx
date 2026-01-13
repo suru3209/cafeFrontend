@@ -157,7 +157,7 @@ export default function LocationPage() {
         isDefault: true,
       });
 
-      router.push("/checkout/summary");
+      router.push("/Checkout/summary");
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Failed to save address");
@@ -173,7 +173,7 @@ export default function LocationPage() {
       {/* SKIP BUTTON */}
       <div className="px-4 pt-3 text-center">
         <button
-          onClick={() => router.push("/checkout/summary")}
+          onClick={() => router.push("/Checkout/summary")}
           className="text-blue-600 text-sm font-medium hover:underline"
         >
           Skip the location
