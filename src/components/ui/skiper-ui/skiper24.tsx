@@ -13,15 +13,9 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { X } from "lucide-react";
 
-
-
 gsap.registerPlugin(ScrollTrigger);
 
-/* ================= HELPERS ================= */
-
 const paiseToRupees = (p: number): number => Math.round(p / 100);
-
-/* ================= TYPES ================= */
 
 type MenuOptionValue = {
   value: string;
@@ -38,8 +32,8 @@ type Project = {
   id: string;
   _virtualId?: string;
   name: string;
-  price: number; // UI
-  basePrice: number; // LOGIC (paise)
+  price: number;
+  basePrice: number;
   image: string;
   description?: string;
   category: {
@@ -52,13 +46,10 @@ interface TikTikColorListProps {
   projects: Project[];
   className?: string;
   showPreview?: boolean;
-  previewSize?: "sm" | "md" | "lg";
   enableSound?: boolean;
   infiniteScroll?: boolean;
   scrollThreshold?: number;
 }
-
-/* ================= COMPONENT ================= */
 
 const TikTikColorList = ({
   projects,
@@ -68,28 +59,26 @@ const TikTikColorList = ({
   infiniteScroll = true,
   scrollThreshold = 1000,
 }: TikTikColorListProps) => {
-  const [currentProjectIndex, setCurrentProjectIndex] = useState<number>(0);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [archiveList, setArchiveList] = useState<Project[]>([]);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const previewRef = useRef<HTMLImageElement | null>(null);
-  const isLoadingRef = useRef<boolean>(false);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isLoadingRef = useRef(false);
 
   const { addToCart } = useCart();
 
+  // 🔇 TEMP SOUND OFF
   const [playTick] = useSound("/sfx/wind.mp3", {
     volume: 0.6,
-    soundEnabled: enableSound,
+    soundEnabled: false,
   });
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, string>
-  >({});
-
-  /* ================= INFINITE SCROLL ================= */
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(
+    {}
+  );
 
   useEffect(() => {
     if (!infiniteScroll) {
@@ -98,13 +87,9 @@ const TikTikColorList = ({
     }
 
     const list: Project[] = [];
-
     for (let i = 0; i < 10; i++) {
-      projects.forEach((project: Project, j: number) => {
-        list.push({
-          ...project,
-          _virtualId: `${i}-${j}-${project.id}`,
-        });
+      projects.forEach((project, j) => {
+        list.push({ ...project, _virtualId: `${i}-${j}-${project.id}` });
       });
     }
 
@@ -121,9 +106,9 @@ const TikTikColorList = ({
       isLoadingRef.current = true;
 
       setTimeout(() => {
-        setArchiveList((prev: Project[]) => [
+        setArchiveList((prev) => [
           ...prev,
-          ...projects.map((project: Project, i: number) => ({
+          ...projects.map((project, i) => ({
             ...project,
             _virtualId: `${prev.length}-${i}-${project.id}`,
           })),
@@ -136,12 +121,9 @@ const TikTikColorList = ({
 
   useEffect(() => {
     if (!infiniteScroll) return;
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll, infiniteScroll]);
-
-  /* ================= GSAP ================= */
 
   useEffect(() => {
     ScrollTrigger.getAll().forEach((t) => t.kill());
@@ -166,20 +148,10 @@ const TikTikColorList = ({
       });
     });
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
   }, [archiveList, projects.length, playTick]);
 
-  const currentProject =
-    projects.length > 0 ? projects[currentProjectIndex] : null;
-
-  /* ================= PRICE LOGIC ================= */
-
-  const calculatePrice = (
-    project: Project,
-    options: Record<string, string>
-  ): number => {
+  const calculatePrice = (project: Project, options: Record<string, string>) => {
     let total = project.basePrice;
 
     project.options?.forEach((opt) => {
@@ -201,7 +173,7 @@ const TikTikColorList = ({
     addToCart({
       id: selectedProject.id,
       name: selectedProject.name,
-      price: finalPrice, // paise
+      price: finalPrice,
       image: selectedProject.image,
       selectedOptions,
     });
@@ -210,7 +182,8 @@ const TikTikColorList = ({
     setSelectedOptions({});
   };
 
-  /* ================= RENDER ================= */
+  const currentProject =
+    projects.length > 0 ? projects[currentProjectIndex] : null;
 
   return (
     <motion.div
@@ -218,11 +191,9 @@ const TikTikColorList = ({
       ref={containerRef}
       style={{ backgroundColor: "#fff", minHeight: "100vh" }}
     >
-      {/* PREVIEW */}
       {showPreview && currentProject && (
         <div className="fixed bottom-10 right-10 z-50 hidden md:block">
           <img
-            ref={previewRef}
             src={currentProject.image}
             className="w-64 h-64 rounded-3xl shadow-2xl object-cover"
             alt={currentProject.name}
@@ -230,88 +201,96 @@ const TikTikColorList = ({
         </div>
       )}
 
-      {/* LIST */}
-      <div className="flex flex-col gap-6">
-        {archiveList.map((project: Project, index: number) => (
+      <div className="flex flex-col gap-4">
+        {archiveList.map((project, index) => (
           <div
             key={`${project._virtualId}-${index}`}
             ref={(el) => {
-              itemRefs.current[index] = el;
+              itemRefs.current[index] = el; // ✅ TS FIX
             }}
-            style={{ opacity: index === activeIndex ? 1 : 0.2 }}
-            className="px-10 cursor-pointer"
+            style={{ opacity: index === activeIndex ? 1 : 0.3 }}
+            className="px-4 md:px-10 cursor-pointer flex items-center gap-4"
             onClick={() => setSelectedProject(project)}
           >
-            <h1 className="text-4xl md:text-7xl">{project.name}</h1>
-            <p className="text-sm text-gray-600">{project.description}</p>
-            <p className="text-sm">
-              ₹{paiseToRupees(project.basePrice)}
-            </p>
+            {/* MOBILE IMAGE ONLY */}
+            <img
+              src={project.image}
+              alt={project.name}
+              className="w-16 h-16 rounded-xl object-cover md:hidden"
+            />
+
+            <div className="flex flex-col">
+              <h1 className="text-lg md:text-7xl font-semibold">
+                {project.name}
+              </h1>
+
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2">
+                {project.description}
+              </p>
+
+              <p className="text-sm md:text-base font-medium">
+                ₹{paiseToRupees(project.basePrice)}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* MODAL */}
       {selectedProject && (
-  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-    <Card className="max-w-md w-full relative">
-      {/* ❌ CLOSE BUTTON */}
-      <button
-        onClick={() => {
-          setSelectedProject(null);
-          setSelectedOptions({});
-        }}
-        className="absolute right-3 top-3 text-muted-foreground hover:text-black"
-        aria-label="Close"
-      >
-        <X size={20} />
-      </button>
-
-      <CardHeader>
-        <CardTitle>{selectedProject.name}</CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {selectedProject.options?.map((opt) => (
-          <div key={opt.id}>
-            <label className="text-sm font-medium">{opt.name}</label>
-            <select
-              className="w-full border p-2 rounded-md mt-1"
-              value={selectedOptions[opt.id] || ""}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  [opt.id]: e.target.value,
-                }))
-              }
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <Card className="max-w-md w-full relative">
+            <button
+              onClick={() => {
+                setSelectedProject(null);
+                setSelectedOptions({});
+              }}
+              className="absolute right-3 top-3 text-muted-foreground hover:text-black"
             >
-              <option value="">Select</option>
-              {opt.values.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.value} (+₹{paiseToRupees(v.priceDelta)})
-                </option>
+              <X size={20} />
+            </button>
+
+            <CardHeader>
+              <CardTitle>{selectedProject.name}</CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {selectedProject.options?.map((opt) => (
+                <div key={opt.id}>
+                  <label className="text-sm font-medium">{opt.name}</label>
+                  <select
+                    className="w-full border p-2 rounded-md mt-1"
+                    value={selectedOptions[opt.id] || ""}
+                    onChange={(e) =>
+                      setSelectedOptions((prev) => ({
+                        ...prev,
+                        [opt.id]: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Select</option>
+                    {opt.values.map((v) => (
+                      <option key={v.value} value={v.value}>
+                        {v.value} (+₹{paiseToRupees(v.priceDelta)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               ))}
-            </select>
-          </div>
-        ))}
 
-        <Button className="w-full" onClick={handleAddToCart}>
-          Add to Cart
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
-)}
-
+              <Button className="w-full" onClick={handleAddToCart}>
+                Add to Cart
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </motion.div>
   );
 };
 
-/* ================= PAGE ================= */
-
 const Skiper24 = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get("/api/menu").then((res) => {
