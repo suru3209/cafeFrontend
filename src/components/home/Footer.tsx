@@ -1,10 +1,12 @@
-import {   myFont3, myFont6 } from "@/app/font";
+import { myFont3, myFont6 } from "@/app/font";
 import Link from "next/link";
 
 export default function Footer() {
   return (
     <footer className="bg-[#292F39] text-white py-16 px-6 md:px-20">
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-10 ${myFont6.className}`}>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-3 gap-10 ${myFont6.className}`}
+      >
         <div>
           <h3 className={`text-xl font-semibold mb-4 ${myFont3.className}`}>
             Aniicone&apos;s Café ☕
@@ -49,7 +51,7 @@ export default function Footer() {
         <p>
           Designed by{" "}
           <a
-            href="www.linkedin.com/in/surya3209"
+            href="https://www.linkedin.com/in/surya3209"
             target="_blank"
             className="text-white underline hover:text-gray-300"
           >
